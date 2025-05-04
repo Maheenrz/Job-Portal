@@ -65,3 +65,6 @@ group :test do
   gem "capybara"            # For feature/system tests
   gem "selenium-webdriver"  # For JS-enabled tests
 end
+
+
+gem 'devise'

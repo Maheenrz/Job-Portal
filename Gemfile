@@ -59,6 +59,7 @@ end
 group :development, :test do
   gem "rspec-rails"         # Main RSpec framework
   gem "factory_bot_rails"   # For test data factories
+  gem "rubocop", require: false
 end
 
 group :test do
@@ -67,4 +68,4 @@ group :test do
 end
 
 
-gem 'devise'
+gem "devise"

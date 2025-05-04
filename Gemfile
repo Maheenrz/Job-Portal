@@ -52,12 +52,16 @@ group :development, :test do
 end
 
 group :development do
-  # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
 end
 
+
+group :development, :test do
+  gem "rspec-rails"         # Main RSpec framework
+  gem "factory_bot_rails"   # For test data factories
+end
+
 group :test do
-  # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
-  gem "capybara"
-  gem "selenium-webdriver"
+  gem "capybara"            # For feature/system tests
+  gem "selenium-webdriver"  # For JS-enabled tests
 end

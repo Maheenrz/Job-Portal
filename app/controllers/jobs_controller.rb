@@ -1,8 +1,8 @@
 class JobsController < ApplicationController
   before_action :authenticate_user!
-  before_action :only_recruiters!, only: [:new, :create, :edit, :update, :destroy]
-  before_action :set_job, only: [:show, :edit, :update, :destroy]
-  before_action :authorize_job_owner!, only: [:edit, :update, :destroy]
+  before_action :only_recruiters!, only: [ :new, :create, :edit, :update, :destroy ]
+  before_action :set_job, only: [ :show, :edit, :update, :destroy ]
+  before_action :authorize_job_owner!, only: [ :edit, :update, :destroy ]
 
   def index
     @jobs = Job.all

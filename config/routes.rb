@@ -2,7 +2,7 @@ Rails.application.routes.draw do
   devise_for :users
 
   resources :jobs do
-    resources :applications, only: [:new, :create]
+    resources :applications, only: [ :new, :create ]
   end
 
   root "jobs#index"

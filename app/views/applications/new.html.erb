@@ -1,0 +1,101 @@
+<div class="mb-4">
+  <%= link_to "← Back to Job", job_path(@job), class: "text-decoration-none" %>
+</div>
+
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-white">
+        <h2 class="mb-0">Apply for: <%= @job.title %> </h2>
+      </div>
+      <div class="card-body">
+        <div class="mb-4">
+          <h5 class="text-muted"><%= @job.company_name %> • <%= @job.location %></h5>
+        </div>
+        
+        <%= form_with(model: [@job, @application], local: true, class: "needs-validation") do |f| %>
+          <% if @application.errors.any? %>
+            <div class="alert alert-danger">
+              <h4><%= pluralize(@application.errors.count, "error") %> prevented this application from being saved:</h4>
+              <ul>
+                <% @application.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+          
+          <div class="mb-3">
+            <%= f.label :cover_letter, class: "form-label" %>
+            <%= f.text_area :cover_letter, rows: 10, class: "form-control", placeholder: "Introduce yourself and explain why you're a good fit for this position..." %>
+            <div class="form-text">
+              Your cover letter should highlight your relevant experience and why you are interested in this position.
+            </div>
+          </div>
+          
+          <div class="d-grid gap-2">
+            <%= f.submit "Submit Application", class: "btn btn-primary btn-lg" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-4">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-white">
+        <h3 class="mb-0">Job Details</h3>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <h5>Company</h5>
+          <p><%= @job.company_name %></p>
+        </div>
+        <div class="mb-3">
+          <h5>Location</h5>
+          <p><%= @job.location %></p>
+        </div>
+        <div class="mb-3">
+          <h5>Employment Type</h5>
+          <p><%= @job.employment_type %></p>
+        </div>
+        <% if @job.salary.present? %>
+          <div class="mb-3">
+            <h5>Salary</h5>
+            <p class="text-success fw-bold"><%= number_to_currency(@job.salary) %></p>
+          </div>
+        <% end %>
+        <div>
+          <h5>Posted</h5>
+          <p><%= time_ago_in_words(@job.created_at) %> ago</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <h3 class="mb-0">Application Tips</h3>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled">
+          <li class="mb-2">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            Keep your cover letter concise and relevant
+          </li>
+          <li class="mb-2">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            Highlight achievements rather than just responsibilities
+          </li>
+          <li class="mb-2">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            Address any specific requirements mentioned in the job description
+          </li>
+          <li class="mb-2">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            Proofread carefully before submitting
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

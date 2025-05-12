@@ -1,2 +1,92 @@
-<h1>Jobs#show</h1>
-<p>Find me in app/views/jobs/show.html.erb</p>
+<div class="mb-4">
+  <%= link_to "← Back to Jobs", jobs_path, class: "text-decoration-none" %>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <div class="row mb-4">
+      <div class="col-md-8">
+        <h1 class="mb-1"><%= @job.title %></h1>
+        <h5 class="text-muted mb-2"><%= @job.company_name %> • <%= @job.location %></h5>
+        <div class="mb-3">
+          <span class="badge bg-info me-2"><%= @job.employment_type %></span>
+          <% if @job.salary.present? %>
+            <span class="badge bg-success"><%= number_to_currency(@job.salary) %></span>
+          <% end %>
+        </div>
+      </div>
+      <div class="col-md-4 text-md-end">
+        <% if user_signed_in? %>
+          <% if current_user.job_seeker? %>
+            <%= link_to "Apply Now", new_job_application_path(@job), class: "btn btn-primary btn-lg" %>
+          <% elsif current_user == @job.user %>
+            <div class="btn-group">
+              <%= link_to "Edit", edit_job_path(@job), class: "btn btn-outline-secondary" %>
+              <%= button_to "Delete", job_path(@job), method: :delete, class: "btn btn-outline-danger",
+                  form: { data: { turbo_confirm: "Are you sure? This cannot be undone." } } %>
+            </div>
+          <% end %>
+        <% else %>
+          <%= link_to "Sign in to Apply", new_user_session_path, class: "btn btn-primary btn-lg" %>
+        <% end %>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-12">
+        <div class="card bg-light border-0 mb-4">
+          <div class="card-body">
+            <h5 class="card-title">Job Description</h5>
+            <div class="card-text">
+              <%= simple_format(@job.description) %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+          <small class="text-muted">
+            Posted <%= time_ago_in_words(@job.created_at) %> ago by <%= @job.user.email %>
+          </small>
+          
+          <div>
+            <button class="btn btn-sm btn-outline-secondary me-2">
+              <i class="bi bi-bookmark"></i> Save
+            </button>
+            <button class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-share"></i> Share
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if user_signed_in? && current_user == @job.user && @job.applications.any? %>
+  <div class="card shadow-sm">
+    <div class="card-header bg-white">
+      <h3 class="mb-0">Applications (<%= @job.applications.count %>)</h3>
+    </div>
+    <div class="list-group list-group-flush">
+      <% @job.applications.includes(:user).each do |application| %>
+        <div class="list-group-item">
+          <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1"><%= application.user.email %></h5>
+            <small><%= time_ago_in_words(application.created_at) %> ago</small>
+          </div>
+          <p class="mb-1"><strong>Cover Letter:</strong></p>
+          <p class="mb-1"><%= simple_format(application.cover_letter) %></p>
+          <small>
+            <a href="mailto:<%= application.user.email %>" class="btn btn-sm btn-outline-primary">
+              Contact Applicant
+            </a>
+          </small>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

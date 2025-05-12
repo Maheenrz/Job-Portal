@@ -5,7 +5,7 @@ Rails.application.routes.draw do
     resources :applications, only: [ :new, :create ]
   end
 
-  root "jobs#index"
+  root "home#index"
 
   get "up" => "rails/health#show", as: :rails_health_check
 end

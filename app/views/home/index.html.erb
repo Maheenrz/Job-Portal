@@ -1,0 +1,99 @@
+<div class="row align-items-center mb-5">
+  <div class="col-md-6">
+    <h1 class="display-4 fw-bold">Find Your Dream Job</h1>
+    <p class="lead text-muted">Connect with top employers and discover opportunities that match your skills and aspirations.</p>
+    <div class="mt-4">
+      <%= link_to "Browse All Jobs", jobs_path, class: "btn btn-primary btn-lg me-2" %>
+      <% if !user_signed_in? %>
+        <%= link_to "Join Now", new_user_registration_path, class: "btn btn-outline-secondary btn-lg" %>
+      <% end %>
+    </div>
+  </div>
+  <div class="col-md-6 text-center">
+    <img src="https://placehold.co/600x400" alt="Job Search" class="img-fluid rounded shadow" />
+  </div>
+</div>
+
+<hr class="my-5">
+
+<div class="row mb-4">
+  <div class="col-12">
+    <h2>Latest Job Opportunities</h2>
+  </div>
+</div>
+
+<div class="row">
+  <% if @recent_jobs.present? %>
+    <% @recent_jobs.each do |job| %>
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title"><%= job.title %></h5>
+            <h6 class="card-subtitle mb-2 text-muted"><%= job.company_name %> • <%= job.location %></h6>
+            <p class="card-text text-truncate"><%= job.description %></p>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="badge bg-info"><%= job.employment_type %></span>
+              <% if job.salary.present? %>
+                <span class="text-success fw-bold"><%= number_to_currency(job.salary) %></span>
+              <% end %>
+            </div>
+          </div>
+          <div class="card-footer bg-white border-top-0">
+            <%= link_to "View Details", job_path(job), class: "btn btn-sm btn-outline-primary" %>
+            <% if user_signed_in? && current_user.job_seeker? %>
+              <%= link_to "Apply Now", new_job_application_path(job), class: "btn btn-sm btn-primary" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="col-12">
+      <div class="alert alert-info">
+        No jobs available at the moment. Please check back later.
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<div class="text-center mt-4 mb-5">
+  <%= link_to "View All Jobs", jobs_path, class: "btn btn-outline-primary" %>
+</div>
+
+<hr class="my-5">
+
+<div class="row mb-5">
+  <div class="col-md-4 mb-3">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body text-center">
+        <div class="p-3 mb-3 bg-primary bg-opacity-10 rounded-circle d-inline-block">
+          <i class="bi bi-search fs-3 text-primary"></i>
+        </div>
+        <h3>Search Jobs</h3>
+        <p class="text-muted">Browse through thousands of opportunities from top companies.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body text-center">
+        <div class="p-3 mb-3 bg-success bg-opacity-10 rounded-circle d-inline-block">
+          <i class="bi bi-file-earmark-text fs-3 text-success"></i>
+        </div>
+        <h3>Apply Easily</h3>
+        <p class="text-muted">Quick application process with personalized cover letters.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body text-center">
+        <div class="p-3 mb-3 bg-info bg-opacity-10 rounded-circle d-inline-block">
+          <i class="bi bi-graph-up fs-3 text-info"></i>
+        </div>
+        <h3>Track Progress</h3>
+        <p class="text-muted">Monitor your applications and get updates from employers.</p>
+      </div>
+    </div>
+  </div>
+</div>

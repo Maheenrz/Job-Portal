@@ -32,3 +32,15 @@ A modern job portal platform built with **Ruby on Rails**, where job seekers can
 ```bash
 git clone https://github.com/Maheenrz/job-portal.git
 cd job-portal
+
+
+### Install Dependencies
+bash
+bundle install
+### Setup the Database
+bash
+rails db:create db:migrate db:seed
+### Run the Server
+bash
+rails server
+Then visit: http://localhost:3000

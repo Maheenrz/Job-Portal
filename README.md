@@ -27,20 +27,42 @@ A modern job portal platform built with **Ruby on Rails**, where job seekers can
 
 ## 🔧 Setup Instructions
 
+Great start! Here's a **corrected and cleaner version** of that installation section for your `README.md` — properly formatted and consistent in markdown syntax:
+
+---
+
+### 🚀 Getting Started
+
+Follow the steps below to set up the project locally:
+
 ### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/Maheenrz/job-portal.git
 cd job-portal
+```
 
+### 2. Install Dependencies
 
-### Install Dependencies
-bash
+```bash
 bundle install
-### Setup the Database
-bash
+```
+
+### 3. Setup the Database
+
+```bash
 rails db:create db:migrate db:seed
-### Run the Server
-bash
+```
+
+### 4. Run the Server
+
+```bash
 rails server
-Then visit: http://localhost:3000
+```
+
+Then open your browser and visit:
+
+```
+http://localhost:3000
+```
+

@@ -1,24 +1,34 @@
-# README
+# 💼 Job Portal Web App
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+A modern job portal platform built with **Ruby on Rails**, where job seekers can browse, search, and apply to jobs, and employers can post job opportunities. The platform includes user authentication, role-based access (job seeker vs. employer), and application tracking.
 
-Things you may want to cover:
 
-* Ruby version
 
-* System dependencies
+## 🚀 Features
 
-* Configuration
+- 👥 User Authentication (Devise)
+- 🎭 Role-Based Access: Job Seeker & Employer
+- 📝 Post and Manage Jobs (Employers)
+- 🔍 Browse & Apply for Jobs (Job Seekers)
+- 📄 Cover Letter Submission
+- 🛡️ Secure, Clean Design using Bootstrap 5
+- 📂 Organized MVC structure
 
-* Database creation
 
-* Database initialization
+## 🛠️ Tech Stack
 
-* How to run the test suite
+- **Backend:** Ruby on Rails
+- **Frontend:** HTML, ERB, Bootstrap 5
+- **Authentication:** Devise
+- **Database:** SQLite3 (development) / PostgreSQL (production-ready)
+- **Icons:** Bootstrap Icons
 
-* Services (job queues, cache servers, search engines, etc.)
+---
 
-* Deployment instructions
+## 🔧 Setup Instructions
 
-* ...
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/Maheenrz/job-portal.git
+cd job-portal

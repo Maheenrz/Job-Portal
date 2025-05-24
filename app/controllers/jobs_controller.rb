@@ -1,11 +1,32 @@
+# app/controllers/jobs_controller.rb
 class JobsController < ApplicationController
-  before_action :authenticate_user!
-  before_action :only_recruiters!, only: [ :new, :create, :edit, :update, :destroy ]
-  before_action :set_job, only: [ :show, :edit, :update, :destroy ]
-  before_action :authorize_job_owner!, only: [ :edit, :update, :destroy ]
+  before_action :authenticate_user!, except: [:index, :show]
+  before_action :only_recruiters!, only: [:new, :create, :edit, :update, :destroy]
+  before_action :set_job, only: [:show, :edit, :update, :destroy]
+  before_action :authorize_job_owner!, only: [:edit, :update, :destroy]
 
   def index
     @jobs = Job.all
+
+    # Filter by user's own jobs if requested (for recruiters)
+    if params[:my_jobs].present? && current_user&.recruiter?
+      @jobs = @jobs.where(user_id: current_user.id)
+    end
+
+    # Apply search filters
+    if params[:keyword].present?
+      @jobs = @jobs.where("title ILIKE :q OR description ILIKE :q", q: "%#{params[:keyword]}%")
+    end
+
+    if params[:location].present?
+      @jobs = @jobs.where("location ILIKE ?", "%#{params[:location]}%")
+    end
+
+    if params[:type].present? && params[:type] != "All Types"
+      @jobs = @jobs.where(employment_type: params[:type])
+    end
+
+    @jobs = @jobs.order(created_at: :desc).page(params[:page]) # if using pagination
   end
 
   def show
@@ -20,7 +41,8 @@ class JobsController < ApplicationController
     if @job.save
       redirect_to @job, notice: "Job posted successfully."
     else
-      render :new
+      # This will show validation errors on the form
+      render :new, status: :unprocessable_entity
     end
   end
 
@@ -31,7 +53,7 @@ class JobsController < ApplicationController
     if @job.update(job_params)
       redirect_to @job, notice: "Job updated successfully."
     else
-      render :edit
+      render :edit, status: :unprocessable_entity
     end
   end
 
@@ -43,7 +65,7 @@ class JobsController < ApplicationController
   private
 
   def only_recruiters!
-    redirect_to root_path, alert: "Access denied." unless current_user.recruiter?
+    redirect_to root_path, alert: "Access denied. Only recruiters can perform this action." unless current_user.recruiter?
   end
 
   def set_job

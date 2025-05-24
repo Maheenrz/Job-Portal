@@ -1,101 +1,282 @@
-<div class="mb-4">
-  <%= link_to "← Back to Job", job_path(@job), class: "text-decoration-none" %>
-</div>
-
-<div class="row">
-  <div class="col-lg-8">
-    <div class="card shadow-sm mb-4">
-      <div class="card-header bg-white">
-        <h2 class="mb-0">Apply for: <%= @job.title %> </h2>
-      </div>
-      <div class="card-body">
-        <div class="mb-4">
-          <h5 class="text-muted"><%= @job.company_name %> • <%= @job.location %></h5>
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0 text-dark"><i class="bi bi-file-earmark-person"></i> Apply for <%= @job.title %></h3>
+          <p class="mb-0 text-dark"><%= @job.company_name %> • <%= @job.location %></p>
         </div>
         
-        <%= form_with(model: [@job, @application], local: true, class: "needs-validation") do |f| %>
-          <% if @application.errors.any? %>
-            <div class="alert alert-danger">
-              <h4><%= pluralize(@application.errors.count, "error") %> prevented this application from being saved:</h4>
-              <ul>
-                <% @application.errors.full_messages.each do |message| %>
-                  <li><%= message %></li>
+        <div class="card-body">
+          <% if @existing_application %>
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle-fill me-2"></i>
+              You have already applied to this job on <%= @existing_application.created_at.strftime("%B %d, %Y") %>.
+            </div>
+            <%= link_to "← Back to Job", job_path(@job), class: "btn btn-secondary" %>
+          <% else %>
+            <%= form_with(model: [@job, @application], local: true, html: { multipart: true, id: 'application-form' }) do |form| %>
+              
+              <!-- Cover Letter Section -->
+              <div class="mb-4">
+                <%= form.label :cover_letter, "Why you're interested in this job", class: "form-label h5" %>
+                <p class="text-muted small mb-2">Tell the employer why you're the perfect fit for this role.</p>
+                <%= form.text_area :cover_letter, class: "form-control", rows: 6, 
+                    placeholder: "Dear Hiring Manager,\n\nI am writing to express my interest in the #{@job.title} position..." %>
+                <% if @application.errors[:cover_letter].any? %>
+                  <div class="text-danger small mt-1">
+                    <%= @application.errors[:cover_letter].first %>
+                  </div>
                 <% end %>
-              </ul>
-            </div>
+              </div>
+
+              <!-- Resume Upload Section -->
+              <div class="mb-4">
+                <%= form.label :resume, class: "form-label h5" %>
+                <p class="text-muted small mb-2">Upload your resume (PDF, DOC, DOCX, or TXT - Max 5MB)</p>
+                
+                <div class="position-relative">
+                  <%= form.file_field :resume, class: "form-control", 
+                      accept: ".pdf,.doc,.docx,.txt", 
+                      id: "resume-upload",
+                      data: { job_id: @job.id } %>
+                  
+                  <!-- Loading indicator -->
+                  <div id="resume-loading" class="d-none mt-3">
+                    <div class="d-flex align-items-center">
+                      <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                      </div>
+                      <span class="text-muted">Analyzing your resume...</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Match Score Results -->
+                  <div id="match-results" class="d-none mt-3">
+                    <div class="card border-primary">
+                      <div class="card-header bg-light">
+                        <h6 class="mb-0"><i class="bi bi-graph-up"></i> Resume Match Analysis</h6>
+                      </div>
+                      <div class="card-body">
+                        <!-- Match Score Display -->
+                        <div class="text-center mb-3">
+                          <h4 id="match-score-display" class="mb-2">--</h4>
+                          <div class="progress" style="height: 15px;">
+                            <div id="match-progress-bar" class="progress-bar" role="progressbar" 
+                                 style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                          </div>
+                          <p id="match-message" class="mt-2 mb-0 fw-bold"></p>
+                        </div>
+                        
+                        <!-- Skills Analysis -->
+                        <div class="row">
+                          <div class="col-md-6">
+                            <h6 class="text-success"><i class="bi bi-check-circle"></i> Matching Skills</h6>
+                            <div id="matching-skills" class="mb-3"></div>
+                          </div>
+                          <div class="col-md-6">
+                            <h6 class="text-warning"><i class="bi bi-exclamation-circle"></i> Skills to highlight</h6>
+                            <div id="missing-skills" class="mb-3"></div>
+                          </div>
+                        </div>
+                        
+                        <!-- Recommendation -->
+                        <div id="recommendation-box" class="alert" role="alert"></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Error Display -->
+                  <div id="resume-error" class="d-none mt-3">
+                    <div class="alert alert-danger" role="alert">
+                      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                      <span id="error-message">Failed to analyze resume. Please try again.</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <% if @application.errors[:resume].any? %>
+                  <div class="text-danger small mt-1">
+                    <%= @application.errors[:resume].first %>
+                  </div>
+                <% end %>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <%= link_to "Cancel", job_path(@job), class: "btn btn-outline-secondary me-md-2" %>
+                <%= form.submit "Submit Application", class: "btn btn-primary btn-lg", id: "submit-btn" %>
+              </div>
+            <% end %>
           <% end %>
-          
-          <div class="mb-3">
-            <%= f.label :cover_letter, class: "form-label" %>
-            <%= f.text_area :cover_letter, rows: 10, class: "form-control", placeholder: "Introduce yourself and explain why you're a good fit for this position..." %>
-            <div class="form-text">
-              Your cover letter should highlight your relevant experience and why you are interested in this position.
-            </div>
-          </div>
-          
-          <div class="d-grid gap-2">
-            <%= f.submit "Submit Application", class: "btn btn-primary btn-lg" %>
-          </div>
-        <% end %>
-      </div>
-    </div>
-  </div>
-  
-  <div class="col-lg-4">
-    <div class="card shadow-sm mb-4">
-      <div class="card-header bg-white">
-        <h3 class="mb-0">Job Details</h3>
-      </div>
-      <div class="card-body">
-        <div class="mb-3">
-          <h5>Company</h5>
-          <p><%= @job.company_name %></p>
         </div>
-        <div class="mb-3">
-          <h5>Location</h5>
-          <p><%= @job.location %></p>
-        </div>
-        <div class="mb-3">
-          <h5>Employment Type</h5>
-          <p><%= @job.employment_type %></p>
-        </div>
-        <% if @job.salary.present? %>
-          <div class="mb-3">
-            <h5>Salary</h5>
-            <p class="text-success fw-bold"><%= number_to_currency(@job.salary) %></p>
-          </div>
-        <% end %>
-        <div>
-          <h5>Posted</h5>
-          <p><%= time_ago_in_words(@job.created_at) %> ago</p>
-        </div>
-      </div>
-    </div>
-    
-    <div class="card shadow-sm">
-      <div class="card-header bg-white">
-        <h3 class="mb-0">Application Tips</h3>
-      </div>
-      <div class="card-body">
-        <ul class="list-unstyled">
-          <li class="mb-2">
-            <i class="bi bi-check-circle-fill text-success me-2"></i>
-            Keep your cover letter concise and relevant
-          </li>
-          <li class="mb-2">
-            <i class="bi bi-check-circle-fill text-success me-2"></i>
-            Highlight achievements rather than just responsibilities
-          </li>
-          <li class="mb-2">
-            <i class="bi bi-check-circle-fill text-success me-2"></i>
-            Address any specific requirements mentioned in the job description
-          </li>
-          <li class="mb-2">
-            <i class="bi bi-check-circle-fill text-success me-2"></i>
-            Proofread carefully before submitting
-          </li>
-        </ul>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const resumeUpload = document.getElementById('resume-upload');
+  const loadingIndicator = document.getElementById('resume-loading');
+  const matchResults = document.getElementById('match-results');
+  const errorDiv = document.getElementById('resume-error');
+  const submitBtn = document.getElementById('submit-btn');
+
+  if (resumeUpload) {
+    resumeUpload.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      
+      if (!file) {
+        hideAllFeedback();
+        return;
+      }
+
+      // Validate file
+      if (!validateFile(file)) {
+        return;
+      }
+
+      // Show loading
+      showLoading();
+      
+      // Create FormData and send to server
+      const formData = new FormData();
+      formData.append('resume', file);
+      
+      const jobId = resumeUpload.dataset.jobId;
+      
+      fetch(`/jobs/${jobId}/applications/analyze_resume`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        hideLoading();
+        
+        if (data.error) {
+          showError(data.error);
+        } else {
+          showMatchResults(data);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        hideLoading();
+        showError('Failed to analyze resume. Please try again.');
+      });
+    });
+  }
+
+  function validateFile(file) {
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'text/plain'
+    ];
+
+    if (file.size > maxSize) {
+      showError('File size must be less than 5MB');
+      return false;
+    }
+
+    if (!allowedTypes.includes(file.type)) {
+      showError('File must be PDF, DOC, DOCX, or TXT format');
+      return false;
+    }
+
+    return true;
+  }
+
+  function showLoading() {
+    hideAllFeedback();
+    loadingIndicator.classList.remove('d-none');
+    submitBtn.disabled = true;
+  }
+
+  function hideLoading() {
+    loadingIndicator.classList.add('d-none');
+    submitBtn.disabled = false;
+  }
+
+  function showMatchResults(data) {
+    hideAllFeedback();
+    
+    const matchScore = data.match_score || 0;
+    const matchingSkills = data.matching_skills || [];
+    const missingSkills = data.missing_skills || [];
+
+    // Update match score display
+    document.getElementById('match-score-display').textContent = `${matchScore}%`;
+    
+    // Update progress bar
+    const progressBar = document.getElementById('match-progress-bar');
+    progressBar.style.width = `${matchScore}%`;
+    progressBar.setAttribute('aria-valuenow', matchScore);
+    
+    // Set progress bar color and message based on score
+    const matchMessage = document.getElementById('match-message');
+    const recommendationBox = document.getElementById('recommendation-box');
+    
+    if (matchScore >= 70) {
+      progressBar.className = 'progress-bar bg-success';
+      matchMessage.textContent = 'Excellent Match!';
+      matchMessage.className = 'mt-2 mb-0 fw-bold text-success';
+      recommendationBox.className = 'alert alert-success';
+      recommendationBox.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i><strong>Great news!</strong> Your resume shows an excellent match for this position. You have a strong chance of getting noticed!';
+    } else if (matchScore >= 40) {
+      progressBar.className = 'progress-bar bg-warning';
+      matchMessage.textContent = 'Good Match';
+      matchMessage.className = 'mt-2 mb-0 fw-bold text-warning';
+      recommendationBox.className = 'alert alert-warning';
+      recommendationBox.innerHTML = '<i class="bi bi-info-circle-fill me-2"></i><strong>Good match!</strong> Consider highlighting the missing skills in your cover letter if you have experience with them.';
+    } else {
+      progressBar.className = 'progress-bar bg-danger';
+      matchMessage.textContent = 'Needs Improvement';
+      matchMessage.className = 'mt-2 mb-0 fw-bold text-danger';
+      recommendationBox.className = 'alert alert-info';
+      recommendationBox.innerHTML = '<i class="bi bi-lightbulb-fill me-2"></i><strong>Tip:</strong> This role may be challenging, but don\'t let that stop you! Emphasize your transferable skills and eagerness to learn.';
+    }
+
+    // Display matching skills
+    const matchingSkillsDiv = document.getElementById('matching-skills');
+    if (matchingSkills.length > 0) {
+      matchingSkillsDiv.innerHTML = matchingSkills.map(skill => 
+        `<span class="badge bg-success me-1 mb-1">${skill}</span>`
+      ).join('');
+    } else {
+      matchingSkillsDiv.innerHTML = '<p class="text-muted small">No specific skills detected</p>';
+    }
+
+    // Display missing skills
+    const missingSkillsDiv = document.getElementById('missing-skills');
+    if (missingSkills.length > 0) {
+      missingSkillsDiv.innerHTML = missingSkills.slice(0, 8).map(skill => 
+        `<span class="badge bg-outline-warning me-1 mb-1" style="border: 1px solid #ffc107; color: #856404;">${skill}</span>`
+      ).join('');
+    } else {
+      missingSkillsDiv.innerHTML = '<p class="text-muted small">You cover most required skills!</p>';
+    }
+
+    matchResults.classList.remove('d-none');
+  }
+
+  function showError(message) {
+    hideAllFeedback();
+    document.getElementById('error-message').textContent = message;
+    errorDiv.classList.remove('d-none');
+  }
+
+  function hideAllFeedback() {
+    loadingIndicator.classList.add('d-none');
+    matchResults.classList.add('d-none');
+    errorDiv.classList.add('d-none');
+  }
+});
+</script>

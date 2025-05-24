@@ -1,0 +1,379 @@
+<div class="main-container shadow-md">
+  <div class="card ">
+    <div class="card-header">
+      <h2 class="card-title mb-3">Complete Your Profile</h2>
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" style="width: <%= @user.profile_completion_percentage %>%" aria-valuenow="<%= @user.profile_completion_percentage %>" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+      <p class="completion-text mb-0">
+        Profile completion: <span class="completion-percentage text-dark"><%= @user.profile_completion_percentage %>%</span> - Complete your profile to improve your visibility!
+      </p>
+    </div>
+
+    <div class="card-body">
+      <!-- Error Messages -->
+      <% if @user.errors.any? %>
+        <div class="alert alert-danger">
+          <h6 class="mb-2">Please fix the following errors:</h6>
+          <ul class="mb-0 ps-3">
+            <% @user.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <%= form_with(model: @user, url: profile_path, method: :patch, local: true, multipart: true, class: "space-y-6") do |form| %>
+        
+        <!-- Profile Picture Section -->
+        <div class="profile-picture-section">
+          <h5 class="mb-3">Profile Picture</h5>
+          <div class="d-flex align-items-center">
+            <div class="me-4">
+              <% if @user.profile_picture.attached? %>
+                <%= image_tag @user.profile_picture, alt: "Profile", class: "profile-img", id: "profile-preview" %>
+              <% else %>
+                <div class="profile-placeholder" id="profile-preview">
+                  <i class="fas fa-user fa-lg"></i>
+                </div>
+              <% end %>
+            </div>
+            <div class="flex-grow-1">
+              <%= form.file_field :profile_picture, class: "form-control", accept: ".jpg,.jpeg,.png", id: "profile-picture-input" %>
+              <div class="form-text">JPG, PNG up to 2MB</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Basic Information -->
+        <div class="form-grid">
+          <div>
+            <%= form.label :username, class: "form-label" do %>
+              Username <span class="required">*</span>
+            <% end %>
+            <%= form.text_field :username, class: "form-control", placeholder: "e.g., john_doe123" %>
+            <div class="form-text">3-20 characters, letters, numbers, and underscores only</div>
+          </div>
+
+          <div>
+            <%= form.label :phone_number, "Phone Number", class: "form-label" %>
+            <%= form.telephone_field :phone_number, class: "form-control", placeholder: "+1234567890" %>
+          </div>
+
+          <div>
+            <%= form.label :first_name, class: "form-label" do %>
+              First Name <span class="required">*</span>
+            <% end %>
+            <%= form.text_field :first_name, class: "form-control", placeholder: "John" %>
+          </div>
+
+          <div>
+            <%= form.label :last_name, class: "form-label" do %>
+              Last Name <span class="required">*</span>
+            <% end %>
+            <%= form.text_field :last_name, class: "form-control", placeholder: "Doe" %>
+          </div>
+
+          <div>
+            <%= form.label :location, class: "form-label" %>
+            <%= form.text_field :location, class: "form-control", placeholder: "New York, NY" %>
+          </div>
+        </div>
+
+        <!-- Professional Information -->
+        <div class="section-divider">
+          <h5 class="mb-4">Professional Information</h5>
+          
+          <div class="form-grid mb-4">
+            <div>
+              <%= form.label :years_of_experience, "Years of Experience", class: "form-label" %>
+              <%= form.number_field :years_of_experience, class: "form-control", placeholder: "5", min: 0, max: 50 %>
+            </div>
+
+            <div>
+              <%= form.label :linkedin_url, "LinkedIn Profile", class: "form-label" %>
+              <%= form.url_field :linkedin_url, class: "form-control", placeholder: "https://linkedin.com/in/yourprofile" %>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <%= form.label :skills, class: "form-label" %>
+            <%= form.text_area :skills, class: "form-control", rows: 2, placeholder: "JavaScript, React, Node.js, Python, SQL (separate with commas)" %>
+            <div class="form-text">Separate skills with commas</div>
+          </div>
+
+          <div class="mb-4">
+            <%= form.label :bio, "Professional Bio", class: "form-label" %>
+            <%= form.text_area :bio, class: "form-control", rows: 4, placeholder: "Tell us about yourself, your experience, and what you're looking for..." %>
+            <div class="form-text">Maximum 1000 characters</div>
+          </div>
+        </div>
+
+        <!-- Resume Section -->
+        <div class="section-divider">
+          <h5 class="mb-4">Resume</h5>
+          <div>
+            <%= form.file_field :resume, class: "form-control", accept: ".pdf,.doc,.docx" %>
+            
+            <!-- Current Resume Display -->
+            <% if @user.resume.attached? %>
+              <div class="current-resume">
+                <span class="current-resume-text">Current Resume: <%= @user.resume.filename %></span>
+                <%= link_to "Download", rails_blob_path(@user.resume, disposition: "attachment"), class: "download-link ms-3" %>
+              </div>
+            <% end %>
+            
+            <div class="form-text">PDF, DOC, DOCX up to 5MB</div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="section-divider text-end">
+          <%= form.submit "Update Profile", class: "btn" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  .main-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+  
+  .card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px 12px 0 0 !important;
+    padding: 2rem;
+  }
+  
+  .card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  
+  .progress {
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+  
+  .progress-bar {
+    background-color: #10b981;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+  
+  .completion-text {
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+  
+  .completion-percentage {
+    font-weight: 600;
+  }
+  
+  .card-body {
+    padding: 2rem;
+  }
+  
+  .form-label {
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-control {
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.75rem;
+    transition: all 0.2s ease;
+  }
+  
+  .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+  
+  .form-text {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+  }
+  
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .profile-picture-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: #f9fafb;
+    border-radius: 8px;
+  }
+  
+  .profile-img {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .profile-placeholder {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background-color: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+  }
+  
+  .section-divider {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 2rem;
+    margin-top: 2rem;
+  }
+  
+  .section-divider:first-child {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+  }
+  
+  .btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 2rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    color: white;
+  }
+  
+  .current-resume {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    background-color: #f0f9ff;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .current-resume-text {
+    color: #0369a1;
+    font-weight: 500;
+  }
+  
+  .download-link {
+    color: #0369a1;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+  
+  .download-link:hover {
+    color: #0284c7;
+    text-decoration: underline;
+  }
+  
+  .alert {
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+  }
+  
+  .alert-danger {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border-left: 4px solid #dc2626;
+  }
+  
+  .required {
+    color: #dc2626;
+  }
+  
+  @media (max-width: 768px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .main-container {
+      margin: 1rem auto;
+    }
+    
+    .card-header,
+    .card-body {
+      padding: 1.5rem;
+    }
+  }
+</style>
+
+<script>
+  // Profile picture preview
+  document.getElementById('profile-picture-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const preview = document.getElementById('profile-preview');
+        if (preview.tagName === 'IMG') {
+          preview.src = e.target.result;
+        } else {
+          // Replace placeholder div with img
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.alt = 'Profile';
+          img.className = 'profile-img';
+          img.id = 'profile-preview';
+          preview.parentNode.replaceChild(img, preview);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Character counter for bio
+  const bioTextarea = document.querySelector('textarea[name="user[bio]"]');
+  if (bioTextarea) {
+    const maxLength = 1000;
+    const counter = document.createElement('div');
+    counter.className = 'form-text text-end';
+    counter.style.marginTop = '0.5rem';
+    bioTextarea.parentNode.appendChild(counter);
+    
+    function updateCounter() {
+      const remaining = maxLength - bioTextarea.value.length;
+      counter.textContent = `${remaining} characters remaining`;
+      counter.style.color = remaining < 50 ? '#dc2626' : '#6b7280';
+    }
+    
+    bioTextarea.addEventListener('input', updateCounter);
+    updateCounter();
+  }
+</script>

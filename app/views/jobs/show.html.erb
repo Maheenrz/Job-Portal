@@ -1,92 +1,426 @@
-<div class="mb-4">
-  <%= link_to "← Back to Jobs", jobs_path, class: "text-decoration-none" %>
-</div>
+<div class="container mt-4">
+  <div class="mb-4">
+    <%= link_to "← Back to Jobs", jobs_path, class: "text-decoration-none" %>
+  </div>
 
-<div class="card shadow-sm mb-4">
-  <div class="card-body">
-    <div class="row mb-4">
-      <div class="col-md-8">
-        <h1 class="mb-1"><%= @job.title %></h1>
-        <h5 class="text-muted mb-2"><%= @job.company_name %> • <%= @job.location %></h5>
-        <div class="mb-3">
-          <span class="badge bg-info me-2"><%= @job.employment_type %></span>
-          <% if @job.salary.present? %>
-            <span class="badge bg-success"><%= number_to_currency(@job.salary) %></span>
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row mb-4">
+        <div class="col-md-8">
+          <h1 class="mb-1"><%= @job.title %></h1>
+          <h5 class="text-muted mb-2"><%= @job.company_name %> • <%= @job.location %></h5>
+          <div class="mb-3">
+            <span class="badge bg-info me-2"><%= @job.employment_type %></span>
+            <% if @job.salary.present? %>
+              <span class="badge bg-success"><%= number_to_currency(@job.salary) %></span>
+            <% end %>
+          </div>
+        </div>
+        <div class="col-md-4 text-md-end">
+          <% if user_signed_in? %>
+            <% if current_user.job_seeker? %>
+              <% existing_application = current_user.applications.find_by(job_id: @job.id) %>
+              <% if existing_application %>
+                <div class="alert alert-success mb-0">
+                  <i class="bi bi-check-circle-fill me-2"></i> 
+                  <strong>Applied</strong><br>
+                  <small>
+                    <%= existing_application.created_at.strftime("%B %d, %Y") %>
+                    <% if existing_application.match_score && existing_application.match_score > 0 %>
+                      <br>Match Score: <strong><%= existing_application.match_score.to_i %>%</strong>
+                    <% end %>
+                  </small>
+                </div>
+              <% else %>
+                <%= link_to "Apply Now", new_job_application_path(@job), class: "btn btn-primary btn-lg" %>
+              <% end %>
+            <% elsif current_user == @job.user %>
+              <div class="btn-group">
+                <%= link_to "Edit", edit_job_path(@job), class: "btn btn-outline-secondary" %>
+                <%= button_to "Delete", job_path(@job), method: :delete, class: "btn btn-outline-danger",
+                    form: { data: { turbo_confirm: "Are you sure? This cannot be undone." } } %>
+              </div>
+            <% end %>
+          <% else %>
+            <%= link_to "Sign in to Apply", new_user_session_path, class: "btn btn-primary btn-lg" %>
           <% end %>
         </div>
       </div>
-      <div class="col-md-4 text-md-end">
-        <% if user_signed_in? %>
-          <% if current_user.job_seeker? %>
-            <%= link_to "Apply Now", new_job_application_path(@job), class: "btn btn-primary btn-lg" %>
-          <% elsif current_user == @job.user %>
-            <div class="btn-group">
-              <%= link_to "Edit", edit_job_path(@job), class: "btn btn-outline-secondary" %>
-              <%= button_to "Delete", job_path(@job), method: :delete, class: "btn btn-outline-danger",
-                  form: { data: { turbo_confirm: "Are you sure? This cannot be undone." } } %>
+      
+      <div class="row">
+        <div class="col-12">
+          <div class="card bg-light border-0 mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Job Description</h5>
+              <div class="card-text">
+                <%= simple_format(@job.description) %>
+              </div>
             </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">
+              Posted <%= time_ago_in_words(@job.created_at) %> ago by <%= @job.user.username %>
+            </small>
+            
+            <div>
+              <button class="btn btn-sm btn-outline-secondary me-2">
+                <i class="bi bi-bookmark"></i> Save
+              </button>
+              <button class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-share"></i> Share
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <% if user_signed_in? && current_user == @job.user && @job.applications.any? %>
+    <div class="card shadow-sm">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">
+          Applications (<%= @job.applications.count %>)
+          <% if @job.applications.where('match_score > 0').any? %>
+            <small class="text-muted">• Avg Match: <%= @job.applications.where('match_score > 0').average(:match_score).to_i %>%</small>
           <% end %>
-        <% else %>
-          <%= link_to "Sign in to Apply", new_user_session_path, class: "btn btn-primary btn-lg" %>
+        </h3>
+        
+        <!-- Enhanced filter buttons with counts -->
+        <div class="btn-group" role="group" aria-label="Filter by match score">
+          <button type="button" class="btn btn-outline-secondary btn-sm active" data-filter="all">
+            All (<%= @job.applications.count %>)
+          </button>
+          <button type="button" class="btn btn-outline-success btn-sm" data-filter="high">
+            High Match (<%= @job.applications.where('match_score >= 70').count %>)
+          </button>
+          <button type="button" class="btn btn-outline-warning btn-sm" data-filter="medium">
+            Medium Match (<%= @job.applications.where('match_score >= 40 AND match_score < 70').count %>)
+          </button>
+          <button type="button" class="btn btn-outline-danger btn-sm" data-filter="low">
+            Low Match (<%= @job.applications.where('match_score < 40 OR match_score IS NULL').count %>)
+          </button>
+        </div>
+      </div>
+      
+      <div class="list-group list-group-flush">
+        <% @job.applications.includes(:user).order(match_score: :desc, created_at: :desc).each do |application| %>
+          <% 
+            match_score = application.match_score.to_i
+            match_class = if match_score >= 70
+                           "high-match"
+                         elsif match_score >= 40
+                           "medium-match"
+                         else
+                           "low-match"
+                         end 
+            
+            # Generate match message
+            match_message = if match_score >= 70
+                             "Excellent Match"
+                           elsif match_score >= 40
+                             "Good Match"  
+                           elsif match_score > 0
+                             "Basic Match"
+                           else
+                             "Not Analyzed"
+                           end
+          %>
+          <div class="list-group-item application-row <%= match_class %> border-start border-4 <%= 
+            if match_score >= 70
+              'border-success'
+            elsif match_score >= 40
+              'border-warning'
+            elsif match_score > 0
+              'border-danger'
+            else
+              'border-secondary'
+            end
+          %>">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                  <div>
+                    <h5 class="mb-1">
+                      <%= application.user.email %>
+                      <% if match_score >= 70 %>
+                        <i class="bi bi-star-fill text-warning ms-1" title="Top Candidate"></i>
+                      <% end %>
+                    </h5>
+                    <small class="text-muted">Applied <%= time_ago_in_words(application.created_at) %> ago</small>
+                  </div>
+                  <div class="text-end">
+                    <% if match_score > 0 %>
+                      <span class="badge <%= 
+                        if match_score >= 70
+                          'bg-success'
+                        elsif match_score >= 40
+                          'bg-warning text-dark'
+                        else
+                          'bg-danger'
+                        end
+                      %> fs-6">
+                        <%= match_score %>% Match
+                      </span>
+                    <% else %>
+                      <span class="badge bg-secondary">No Score</span>
+                    <% end %>
+                  </div>
+                </div>
+                
+                <% if application.cover_letter.present? %>
+                  <div class="mt-3">
+                    <p class="mb-1"><strong>Cover Letter:</strong></p>
+                    <div class="bg-light p-3 rounded">
+                      <p class="mb-0 text-truncate-multiline">
+                        <%= simple_format(truncate(application.cover_letter, length: 300)) %>
+                      </p>
+                      <% if application.cover_letter.length > 300 %>
+                        <button class="btn btn-sm btn-link p-0 mt-1" onclick="toggleFullText(this)">
+                          Read more...
+                        </button>
+                        <div class="full-text d-none">
+                          <%= simple_format(application.cover_letter) %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                <% else %>
+                  <p class="text-muted mt-2"><em>No cover letter provided</em></p>
+                <% end %>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="card border-0 bg-light h-100">
+                  <div class="card-body d-flex flex-column">
+                    <h6 class="card-title d-flex align-items-center">
+                      <i class="bi bi-graph-up me-2"></i>Resume Analysis
+                    </h6>
+                    
+                    <% if match_score > 0 %>
+                      <div class="text-center mb-3">
+                        <h3 class="mb-2"><%= match_score %>%</h3>
+                        <div class="progress mb-2" style="height: 12px;">
+                          <div class="progress-bar <%= 
+                            if match_score >= 70
+                              'bg-success'
+                            elsif match_score >= 40
+                              'bg-warning'
+                            else
+                              'bg-danger'
+                            end
+                          %>" role="progressbar" 
+                               style="width: <%= match_score %>%;" 
+                               aria-valuenow="<%= match_score %>" 
+                               aria-valuemin="0" aria-valuemax="100">
+                          </div>
+                        </div>
+                        <p class="mb-0 fw-bold text-<%= 
+                          if match_score >= 70
+                            'success'
+                          elsif match_score >= 40
+                            'warning'
+                          else
+                            'danger'
+                          end
+                        %>">
+                          <%= match_message %>
+                        </p>
+                      </div>
+                      
+                      <!-- Show stored skill analysis if available -->
+                      <% if application.skill_analysis.present? %>
+                        <% begin %>
+                          <% skill_data = JSON.parse(application.skill_analysis) %>
+                          
+                          <div class="mb-3">
+                            <% if skill_data['matching']&.any? %>
+                              <div class="mb-2">
+                                <small class="text-success fw-bold"><i class="bi bi-check-circle"></i> Matching Skills:</small><br>
+                                <% skill_data['matching'].first(3).each do |skill| %>
+                                  <span class="badge bg-success me-1 mb-1" style="font-size: 0.7em;"><%= skill %></span>
+                                <% end %>
+                                <% if skill_data['matching'].size > 3 %>
+                                  <small class="text-muted">+<%= skill_data['matching'].size - 3 %> more</small>
+                                <% end %>
+                              </div>
+                            <% end %>
+                            
+                            <% if skill_data['missing']&.any? %>
+                              <div>
+                                <small class="text-warning fw-bold"><i class="bi bi-exclamation-circle"></i> Missing Skills:</small><br>
+                                <% skill_data['missing'].first(3).each do |skill| %>
+                                  <span class="badge bg-outline-warning me-1 mb-1" style="font-size: 0.7em; border: 1px solid #ffc107; color: #856404;"><%= skill %></span>
+                                <% end %>
+                                <% if skill_data['missing'].size > 3 %>
+                                  <small class="text-muted">+<%= skill_data['missing'].size - 3 %> more</small>
+                                <% end %>
+                              </div>
+                            <% end %>
+                          </div>
+                        <% rescue JSON::ParserError %>
+                          <!-- Handle invalid JSON -->
+                          <div class="text-muted small">
+                            <i class="bi bi-info-circle"></i> Skill analysis data format error
+                          </div>
+                        <% end %>
+                      <% end %>
+                    <% else %>
+                      <div class="text-center text-muted mb-3">
+                        <i class="bi bi-exclamation-circle fs-1 mb-2"></i>
+                        <% if application.resume.attached? %>
+                          <p>Analysis failed<br>
+                            <small>
+                              <% if application.analysis_error.present? %>
+                                Error: <%= truncate(application.analysis_error, length: 50) %>
+                              <% else %>
+                                Resume format may not be supported
+                              <% end %>
+                            </small>
+                          </p>
+                          <button class="btn btn-sm btn-outline-primary mt-2" 
+                                  onclick="retryAnalysis(<%= application.id %>)">
+                            <i class="bi bi-arrow-clockwise"></i> Retry Analysis
+                          </button>
+                        <% else %>
+                          <p>No resume uploaded<br><small>Candidate didn't attach a resume</small></p>
+                        <% end %>
+                      </div>
+                    <% end %>
+                    
+                    <div class="mt-auto">
+                      <div class="d-flex justify-content-between gap-2">
+                        <a href="mailto:<%= application.user.email %>?subject=Regarding your application for <%= @job.title %>" 
+                           class="btn btn-sm btn-outline-primary flex-fill">
+                          <i class="bi bi-envelope"></i> Contact
+                        </a>
+                        
+                        <% if application.resume.attached? %>
+                          <%= link_to rails_blob_path(application.resume, disposition: "attachment"), 
+                              class: "btn btn-sm btn-outline-secondary flex-fill", 
+                              title: "Download Resume" do %>
+                            <i class="bi bi-download"></i> Resume
+                          <% end %>
+                        <% else %>
+                          <span class="btn btn-sm btn-outline-secondary flex-fill disabled">
+                            <i class="bi bi-file-x"></i> No Resume
+                          </span>
+                        <% end %>
+                      </div>
+                      
+                      <% if match_score >= 70 %>
+                        <div class="mt-2">
+                          <button class="btn btn-sm btn-success w-100">
+                            <i class="bi bi-star"></i> Priority Candidate
+                          </button>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         <% end %>
       </div>
     </div>
-    
-    <div class="row">
-      <div class="col-12">
-        <div class="card bg-light border-0 mb-4">
-          <div class="card-body">
-            <h5 class="card-title">Job Description</h5>
-            <div class="card-text">
-              <%= simple_format(@job.description) %>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="row">
-      <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center">
-          <small class="text-muted">
-            Posted <%= time_ago_in_words(@job.created_at) %> ago by <%= @job.user.email %>
-          </small>
-          
-          <div>
-            <button class="btn btn-sm btn-outline-secondary me-2">
-              <i class="bi bi-bookmark"></i> Save
-            </button>
-            <button class="btn btn-sm btn-outline-secondary">
-              <i class="bi bi-share"></i> Share
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
-<% if user_signed_in? && current_user == @job.user && @job.applications.any? %>
-  <div class="card shadow-sm">
-    <div class="card-header bg-white">
-      <h3 class="mb-0">Applications (<%= @job.applications.count %>)</h3>
-    </div>
-    <div class="list-group list-group-flush">
-      <% @job.applications.includes(:user).each do |application| %>
-        <div class="list-group-item">
-          <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1"><%= application.user.email %></h5>
-            <small><%= time_ago_in_words(application.created_at) %> ago</small>
-          </div>
-          <p class="mb-1"><strong>Cover Letter:</strong></p>
-          <p class="mb-1"><%= simple_format(application.cover_letter) %></p>
-          <small>
-            <a href="mailto:<%= application.user.email %>" class="btn btn-sm btn-outline-primary">
-              Contact Applicant
-            </a>
-          </small>
-        </div>
-      <% end %>
-    </div>
-  </div>
-<% end %>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Filter buttons functionality
+        const filterButtons = document.querySelectorAll('.btn-group [data-filter]');
+        const applicationRows = document.querySelectorAll('.application-row');
+        
+        filterButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            // Update active state
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            const filter = this.getAttribute('data-filter');
+            
+            // Show/hide applications based on filter
+            applicationRows.forEach(row => {
+              if (filter === 'all') {
+                row.style.display = '';
+              } else if (filter === 'high' && row.classList.contains('high-match')) {
+                row.style.display = '';
+              } else if (filter === 'medium' && row.classList.contains('medium-match')) {
+                row.style.display = '';
+              } else if (filter === 'low' && row.classList.contains('low-match')) {
+                row.style.display = '';
+              } else {
+                row.style.display = 'none';
+              }
+            });
+          });
+        });
+      });
+
+      // Toggle full cover letter text
+      function toggleFullText(button) {
+        const fullText = button.nextElementSibling;
+        const truncated = button.previousElementSibling;
+        
+        if (fullText.classList.contains('d-none')) {
+          fullText.classList.remove('d-none');
+          truncated.classList.add('d-none');
+          button.textContent = 'Read less...';
+        } else {
+          fullText.classList.add('d-none');
+          truncated.classList.remove('d-none');
+          button.textContent = 'Read more...';
+        }
+      }
+
+      // Retry analysis function
+      function retryAnalysis(applicationId) {
+        fetch(`/applications/${applicationId}/retry_analysis`, {
+          method: 'POST',
+          headers: {
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            location.reload(); // Refresh the page to show updated analysis
+          } else {
+            alert('Analysis retry failed: ' + (data.error || 'Unknown error'));
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Failed to retry analysis');
+        });
+      }
+    </script>
+
+    <style>
+      .text-truncate-multiline {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      
+      .application-row {
+        transition: all 0.2s ease;
+      }
+      
+      .application-row:hover {
+        background-color: #f8f9fa;
+      }
+      
+      .border-4 {
+        border-width: 4px !important;
+      }
+    </style>
+  <% end %>
+</div>

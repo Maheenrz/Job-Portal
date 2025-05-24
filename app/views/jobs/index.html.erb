@@ -13,29 +13,23 @@
   <div class="col-12">
     <div class="card">
       <div class="card-body">
-        <form class="row g-3">
+        <%= form_with url: jobs_path, method: :get, local: true, class: "row g-3" do %>
           <div class="col-md-4">
             <label for="keyword" class="form-label">Keywords</label>
-            <input type="text" class="form-control" id="keyword" placeholder="Job title, skills, etc.">
+            <%= text_field_tag :keyword, params[:keyword], class: "form-control", placeholder: "Job title, skills, etc." %>
           </div>
           <div class="col-md-3">
             <label for="location" class="form-label">Location</label>
-            <input type="text" class="form-control" id="location" placeholder="City, state or remote">
+            <%= text_field_tag :location, params[:location], class: "form-control", placeholder: "City, state or remote" %>
           </div>
           <div class="col-md-3">
             <label for="type" class="form-label">Employment Type</label>
-            <select class="form-select" id="type">
-              <option selected value="">All Types</option>
-              <option>Full-time</option>
-              <option>Part-time</option>
-              <option>Contract</option>
-              <option>Internship</option>
-            </select>
+            <%= select_tag :type, options_for_select(["All Types", "Full-time", "Part-time", "Contract", "Internship"], params[:type]), class: "form-select" %>
           </div>
           <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary w-100">Search</button>
+            <%= submit_tag "Search", class: "btn btn-primary w-100" %>
           </div>
-        </form>
+        <% end %>
       </div>
     </div>
   </div>
@@ -49,19 +43,26 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-8">
-                <h3 class="card-title mb-1"><%= link_to job.title, job_path(job), class: "text-decoration-none" %></h3>
+                <h3 class="card-title mb-1">
+                  <%= link_to job.title, job_path(job), class: "text-decoration-none" %>
+                </h3>
                 <h6 class="card-subtitle mb-2 text-muted">
                   <%= job.company_name %> • <%= job.location %>
                 </h6>
-                <p class="card-text mb-2"><%= truncate(job.description, length: 150) %></p>
+                <p class="card-text mb-2">
+                  <%= truncate(job.description, length: 150) %>
+                </p>
                 <div class="mb-2">
                   <span class="badge bg-info me-2"><%= job.employment_type %></span>
                   <% if job.salary.present? %>
                     <span class="badge bg-success"><%= number_to_currency(job.salary) %></span>
                   <% end %>
                 </div>
-                <small class="text-muted">Posted <%= time_ago_in_words(job.created_at) %> ago by <%= job.user.email %></small>
+                <small class="text-muted">
+                  Posted <%= time_ago_in_words(job.created_at) %> ago by <%= job.user.username %>
+                </small>
               </div>
+
               <div class="col-md-4 text-md-end d-flex flex-column justify-content-between">
                 <div class="mt-3 mt-md-0">
                   <%= link_to "View Details", job_path(job), class: "btn btn-outline-primary me-2" %>
@@ -69,12 +70,11 @@
                     <%= link_to "Apply Now", new_job_application_path(job), class: "btn btn-primary" %>
                   <% end %>
                 </div>
-                
+
                 <% if user_signed_in? && current_user == job.user %>
                   <div class="mt-3">
-                    <%= link_to "Edit", edit_job_path(job), class: "btn btn-sm btn-outline-secondary me-2" %>
-                    <%= button_to "Delete", job_path(job), method: :delete, class: "btn btn-sm btn-outline-danger", 
-                        form: { data: { turbo_confirm: "Are you sure? This cannot be undone." } }, style: "display: inline-block;" %>
+                    <%= link_to "Edit", edit_job_path(job), class: "btn btn-sm btn-outline-secondary me-2 mb-2" %>
+                    <%= button_to "Delete", job_path(job), method: :delete, data: { turbo_confirm: "Are you sure? This cannot be undone." }, class: "btn btn-sm btn-outline-danger" %>
                   </div>
                 <% end %>
               </div>
@@ -93,5 +93,5 @@
 </div>
 
 <div class="d-flex justify-content-center mt-4">
-  <%# Pagination will go here if you implement it %>
+  <%= paginate @jobs %> <%# Optional: Use if you're using will_paginate or kaminari %>
 </div>

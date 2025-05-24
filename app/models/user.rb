@@ -20,7 +20,7 @@ class User < ApplicationRecord
   validates :years_of_experience, numericality: { greater_than_or_equal_to: 0, less_than: 100 }, allow_blank: true
   validates :bio, length: { maximum: 1000 }
 
-  # Callbacks
+
   before_save :normalize_username
   after_update :update_profile_completion
 

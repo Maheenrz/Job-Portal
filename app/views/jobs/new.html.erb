@@ -1,2 +1,89 @@
-<h1>Jobs#new</h1>
-<p>Find me in app/views/jobs/new.html.erb</p>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      <div class="card shadow border rounded-4 shadow-sm">
+        <div class="card-header bg-white">
+          <h1 class="mb-0">Post New Job</h1>
+        </div>
+        <div class="card-body">
+          <% if notice %>
+            <div class="alert alert-success"><%= notice %></div>
+          <% elsif alert %>
+            <div class="alert alert-danger"><%= alert %></div>
+          <% end %>
+
+          <%= form_with model: @job, local: true do |form| %>
+            <% if @job.errors.any? %>
+              <div class="alert alert-danger">
+                <h4><%= pluralize(@job.errors.count, "error") %> prohibited this job from being saved:</h4>
+                <ul>
+                  <% @job.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <%= form.label :title, class: "form-label" %>
+                  <%= form.text_field :title, class: "form-control", placeholder: "Enter job title" %>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="form-group">
+                  <%= form.label :company_name, class: "form-label" %>
+                  <%= form.text_field :company_name, class: "form-control", placeholder: "Enter company name" %>
+                </div>
+              </div>
+              
+              <div class="col-md-4">
+                <div class="form-group">
+                  <%= form.label :location, class: "form-label" %>
+                  <%= form.text_field :location, class: "form-control", placeholder: "Enter location" %>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-group mb-3">
+              <%= form.label :description, class: "form-label" %>
+              <%= form.text_area :description, class: "form-control", rows: 5, placeholder: "Enter job description" %>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <%= form.label :employment_type, class: "form-label" %>
+                  <%= form.select :employment_type, 
+                      options_for_select([
+                        ['Select Employment Type', ''],
+                        ['Full-time', 'Full-time'],
+                        ['Part-time', 'Part-time'],
+                        ['Contract', 'Contract'],
+                        ['Internship', 'Internship']
+                      ], @job.employment_type), 
+                      {}, 
+                      { class: "form-control" } %>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <%= form.label :salary, class: "form-label" %>
+                  <%= form.number_field :salary, class: "form-control", placeholder: "Enter salary (optional)", min: 0 %>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group text-center mt-4">
+              <%= form.submit "Post Job", class: "btn btn-primary btn-lg px-5" %>
+              <%= link_to "Cancel", jobs_path, class: "btn btn-secondary btn-lg px-5 ms-3" %>
+            </div>  
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

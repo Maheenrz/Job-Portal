@@ -75,12 +75,12 @@ gem "tailwindcss-rails", "~> 4.2"
 gem "kaminari", "~> 1.2"
 
 
-gem 'active_storage_validations'
+gem "active_storage_validations"
 
 # For text analysis and matching
-gem 'classifier-reborn'
-gem 'tf-idf-similarity'
-gem 'fast-stemmer'  # Required by classifier-reborn for stemming
-gem 'stopwords-filter'  # For removing common words
-gem 'pdf-reader'  # For extracting text from PDF resumes
-gem 'docx'
+gem "classifier-reborn"
+gem "tf-idf-similarity"
+gem "fast-stemmer"  # Required by classifier-reborn for stemming
+gem "stopwords-filter"  # For removing common words
+gem "pdf-reader"  # For extracting text from PDF resumes
+gem "docx"

@@ -9,10 +9,10 @@ class UsersController < ApplicationController
 
   def update
     if @user.update(user_params)
-      redirect_to profile_path, notice: 'Profile updated successfully!'
+      redirect_to profile_path, notice: "Profile updated successfully!"
     else
       # Pass validation errors to the view
-      flash.now[:alert] = 'Please fix the errors below.'
+      flash.now[:alert] = "Please fix the errors below."
       render :edit, status: :unprocessable_entity
     end
   end
@@ -30,8 +30,8 @@ class UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(
-      :username, :first_name, :last_name, :phone_number, 
-      :location, :bio, :linkedin_url, :years_of_experience, 
+      :username, :first_name, :last_name, :phone_number,
+      :location, :bio, :linkedin_url, :years_of_experience,
       :skills, :resume, :profile_picture
     )
   end

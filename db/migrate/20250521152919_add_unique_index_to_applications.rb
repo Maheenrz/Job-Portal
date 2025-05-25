@@ -4,7 +4,7 @@ class AddUniqueIndexToApplications < ActiveRecord::Migration[7.0]
     unless index_exists?(:users, :username)
       add_index :users, :username, unique: true
     end
-    
+
     # Also ensure username column exists (in case migration wasn't run)
     unless column_exists?(:users, :username)
       add_column :users, :username, :string

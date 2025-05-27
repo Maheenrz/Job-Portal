@@ -86,7 +86,7 @@ Follow the steps below to set up the project locally:
 ```bash
 git clone https://github.com/Maheenrz/job-portal.git
 cd job-portal
-
+```
 
 
 ### 2. Install Dependencies

@@ -88,20 +88,6 @@ git clone https://github.com/Maheenrz/job-portal.git
 cd job-portal
 
 
-## 🔧 Setup Instructions
-
----
-
-### 🚀 Getting Started
-
-Follow the steps below to set up the project locally:
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/Maheenrz/job-portal.git
-cd job-portal
-```
 
 ### 2. Install Dependencies
 

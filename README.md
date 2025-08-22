@@ -40,6 +40,21 @@ A modern job portal platform built with **Ruby on Rails**, where job seekers can
 
 ---
 
+## 📸 Screenshots
+
+| Applicant Resume Match | Job Listings | Job Post |
+|-------------------------|--------------|----------|
+| ![Applicant Resume Match](https://github.com/Maheenrz/Job-Portal/blob/main/public/imagesjp/applicant_jobtoresumematch.png) | ![Job Listings](https://github.com/Maheenrz/Job-Portal/blob/main/public/imagesjp/jobListing.png) | ![Job Post](https://github.com/Maheenrz/Job-Portal/blob/main/public/imagesjp/job_post.png) |
+
+| Job Post Form | Profile Update | Resume Analyze |
+|---------------|----------------|----------------|
+| ![Job Post Form](https://github.com/Maheenrz/Job-Portal/blob/main/public/imagesjp/jobpost_form.png) | ![Profile Update](https://github.com/Maheenrz/Job-Portal/blob/main/public/imagesjp/profileupdate.png) | ![Resume Analyze](https://github.com/Maheenrz/Job-Portal/blob/main/public/imagesjp/resume-analyze.png) |
+
+| Resume Upload | Signup Page | Welcome Page |
+|---------------|-------------|--------------|
+| ![Resume Upload](https://github.com/Maheenrz/Job-Portal/blob/main/public/imagesjp/resume_upload.png) | ![Signup Page](https://github.com/Maheenrz/Job-Portal/blob/main/public/imagesjp/signup.png) | ![Welcome Page](https://github.com/Maheenrz/Job-Portal/blob/main/public/imagesjp/welcomepage.png) |
+
+
 ## 🔧 Setup Instructions
 
 ### 🚀 Getting Started
@@ -77,4 +92,5 @@ Then open your browser and visit:
 ```
 http://localhost:3000
 ```
+
 
